@@ -14,7 +14,6 @@ public class OrderData {
     private String _id;
     private Owner owner;
     private int number;
-    private String status;
 
     @Data
     @Builder

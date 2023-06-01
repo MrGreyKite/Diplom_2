@@ -68,22 +68,19 @@ public class OrderCreationTest {
 
     @Test
     public void createOrderWithIngredientsWhenUnauthorizedTest() {
+        //в ТЗ указано "Только авторизованные пользователи могут делать заказы." (раздел "Авторизация и регистрация")
         reserveToken = RestClient.getAuthToken();
         ordersClient.setAuthToken("");
 
         OrderData in = OrderData.builder().ingredients(new Object[]{hash1, hash2}).build();
-        int numberOfIngredients = in.getIngredients().length;
 
         ValidatableResponse response = ordersClient.makeOrder(in).spec(ordersClient.getResponseSpec());
 
-        OrderData order = response.extract().body().jsonPath().getObject("order", OrderData.class);
-
         Allure.step("Проверка корректности данных в ответе", () -> {
-            assertAll("Приходит верная информация о заказе",
-                    () -> assertEquals(OK.getCode(), response.extract().statusCode()),
-                    () -> assertThat(response.extract().path("success"), is(true)),
-                    () -> assertEquals(numberOfIngredients, order.getIngredients().length),
-                    () -> assertThat(order.getNumber(), is(notNullValue()))
+            assertAll("Приходит код ошибки и сообщение об отсутствии авторизации",
+                    () -> assertEquals(UNAUTHORIZED.getCode(), response.extract().statusCode()),
+                    () -> assertThat(response.extract().path("success"), is(false)),
+                    () -> assertThat(response.extract().path("message"), is("You should be authorised"))
             );
         });
     }
@@ -136,6 +133,7 @@ public class OrderCreationTest {
 
 
     @AfterEach
+    @Step("Восстановление токена авторизации, если он был стерт")
     void restoreTokenIfNeeded() {
         if(RestClient.getAuthToken().isEmpty()) {
             authClient.setAuthToken(reserveToken);

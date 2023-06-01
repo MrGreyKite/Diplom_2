@@ -5,6 +5,7 @@ import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -68,6 +69,7 @@ public class UserAuthTest {
 
     @ParameterizedTest(name = "{index} - Авторизация пользователем {0} с некорректными данными")
     @MethodSource("incorrectLoginData")
+    @DisplayName("Попытка авторизации некорректными данными")
     public void authorizeWithIncorrectDataTest(UserData userInfo) {
         ValidatableResponse response = authClient.
                 authorizeUser(userInfo).spec(authClient.getResponseSpec());

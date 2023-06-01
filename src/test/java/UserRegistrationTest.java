@@ -98,6 +98,7 @@ public class UserRegistrationTest {
 
     @ParameterizedTest(name = "{index} - Создание пользователя {0} без одного или нескольких обязательных полей приводит к ошибке")
     @MethodSource("incorrectRegisterData")
+    @DisplayName("Попытка создания пользователя с некорректными данными - без одного или нескольких полей")
     public void userWithoutRequiredFieldsTest(UserData user) {
         ValidatableResponse response = authClient.registerUser(user).spec(authClient.getResponseSpec());
 
