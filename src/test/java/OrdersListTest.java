@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 @DisplayName("Тесты на список заказов пользователя")
 public class OrdersListTest {
-
     static AuthClient authClient = new AuthClient();
     static OrdersClient ordersClient = new OrdersClient();
     static IngredientsClient ingredientsClient = new IngredientsClient();
@@ -46,12 +45,12 @@ public class OrdersListTest {
         ids.remove(hash1);
         ids.remove(hash2);
         hash3 = ids.get(new Random().nextInt(ids.size()));
-
     }
 
     @Test
     @DisplayName("Получение списка заказов, сделанных пользователем")
-    @Description("Проверяется, что в списке заказов пользователя есть все ранее сделанные заказы в правильном количестве")
+    @Description("Проверяется, что авторизованный пользователь может получить актуальный список своих заказов " +
+            "- правильный состав и количество")
     public void getOrdersByUserTest() {
         OrderData in1 = OrderData.builder().ingredients(new Object[]{hash1, hash2, hash3}).build();
         OrderData in2 = OrderData.builder().ingredients(new Object[]{hash1, hash2}).build();
@@ -74,8 +73,8 @@ public class OrdersListTest {
         List<String> idsOfOrdersInList = orders.stream().map(OrderData::get_id).collect(Collectors.toList());
         List<Integer> numbersOfOrdersInList = orders.stream().map(OrderData::getNumber).collect(Collectors.toList());
 
-        Allure.step("Проверка кода и сообщения об ошибке", () -> {
-            assertAll("Приходит статус-код 400 и сообщение об отсутствии ингредиентов",
+        Allure.step("Проверка корректности данных в ответе", () -> {
+            assertAll("Приходит информация о количестве и составе заказов",
                     () -> assertEquals(OK.getCode(), response.extract().statusCode()),
                     () -> assertIterableEquals(idsOfIndividualOrders, idsOfOrdersInList),
                     () -> assertIterableEquals(numbersOfIndividualOrders, numbersOfOrdersInList),
@@ -87,7 +86,7 @@ public class OrdersListTest {
 
     @Test
     @DisplayName("Запрос списка заказов неавторизованным пользователем")
-    @Description("Проверяется, что пользователь должен быть авторизован для получения списка заказов")
+    @Description("Проверяется, что только авторизованный пользователь может получить список своих заказов")
     public void getOrdersUnauthorized() {
         reserveToken = RestClient.getAuthToken();
         ordersClient.setAuthToken("");
@@ -100,7 +99,7 @@ public class OrdersListTest {
         ValidatableResponse response = ordersClient.getOrdersList().spec(ordersClient.getResponseSpec());
 
         Allure.step("Проверка кода и сообщения об ошибке", () -> {
-            assertAll("Приходит статус-код 400 и сообщение об отсутствии ингредиентов",
+            assertAll("Приходит статус-код 403 и сообщение об отсутствии авторизации",
                     () -> assertEquals(UNAUTHORIZED.getCode(), response.extract().statusCode()),
                     () -> assertThat(response.extract().path("success"), is(false)),
                     () -> assertThat(response.extract().path("message"), is("You should be authorised"))

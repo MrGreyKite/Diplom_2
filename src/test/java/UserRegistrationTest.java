@@ -1,6 +1,7 @@
 import com.github.javafaker.Faker;
 import data.UserData;
 import io.qameta.allure.Allure;
+import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -33,6 +34,8 @@ public class UserRegistrationTest {
     private UserData user;
 
     @Test
+    @DisplayName("Регистрация нового пользователя")
+    @Description("Проверяется регистрация пользователем, которого раньше не существовало")
     public void uniqueUserRegistrationTest() {
         user = new UserData(email, password, username);
         ValidatableResponse response = authClient.registerUser(user).spec(authClient.getResponseSpec());
@@ -45,10 +48,11 @@ public class UserRegistrationTest {
                     () -> assertEquals(user.getEmail(), response.extract().path("user.email"))
             );
         });
-
     }
 
     @Test
+    @DisplayName("Регистрация нового пользователя с повторяющимся именем")
+    @Description("Проверяется, что нельзя зарегистрировать пользователя с таким же именем, как у уже существующего")
     public void userWithExistingUsernameRegistrationTest() {
         user = new UserData(email, password, username);
         UserData user2 = new UserData(faker.internet().emailAddress(), password, username);
@@ -64,11 +68,11 @@ public class UserRegistrationTest {
                             response.extract().path("message"))
             );
         });
-
     }
 
-
     @Test
+    @DisplayName("Регистрация нового пользователя с повторяющимся email")
+    @Description("Проверяется, что нельзя зарегистрировать пользователя с таким же email, как у уже существующего")
     public void userWithExistingEmailRegistrationTest() {
         user = new UserData(email, password, username);
         UserData user2 = new UserData(email, faker.name().username(), password);
@@ -98,7 +102,7 @@ public class UserRegistrationTest {
 
     @ParameterizedTest(name = "{index} - Создание пользователя {0} без одного или нескольких обязательных полей приводит к ошибке")
     @MethodSource("incorrectRegisterData")
-    @DisplayName("Попытка создания пользователя с некорректными данными - без одного или нескольких полей")
+    @DisplayName("Попытка создания пользователя с некорректными данными - ")
     public void userWithoutRequiredFieldsTest(UserData user) {
         ValidatableResponse response = authClient.registerUser(user).spec(authClient.getResponseSpec());
 
@@ -109,9 +113,7 @@ public class UserRegistrationTest {
                             response.extract().path("message"))
             );
         });
-
     }
-
 
     @AfterEach
     @Step("Очистка данных тестового пользователя")

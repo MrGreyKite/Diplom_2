@@ -1,6 +1,7 @@
 import com.github.javafaker.Faker;
 import data.UserData;
 import io.qameta.allure.Allure;
+import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
 import org.junit.jupiter.api.AfterAll;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+@DisplayName("Тесты на авторизацию пользователя")
 public class UserAuthTest {
 
     static Faker faker = new Faker();
@@ -40,12 +42,13 @@ public class UserAuthTest {
 
 
     @Test
+    @DisplayName("Авторизация с корректными и полными данными")
     public void loginWithValidUserTest() {
         ValidatableResponse response = authClient.
                 authorizeUser(UserData.builder().email(user.getEmail()).password(user.getPassword()).build()).
                 spec(authClient.getResponseSpec());
 
-        Allure.step("Проверка корректности данных в ответе", () -> {
+        Allure.step("Проверка данных в ответе", () -> {
             assertAll("Приходит правильный статус-код и подтверждается авторизация нужного пользователя",
                     () -> assertEquals(OK.getCode(), response.extract().statusCode()),
                     () -> assertThat(response.extract().path("success"), is(true)),
@@ -55,7 +58,6 @@ public class UserAuthTest {
         });
 
     }
-
 
     static Stream<Arguments> incorrectLoginData() {
         return Stream.of(
@@ -67,14 +69,15 @@ public class UserAuthTest {
         );
     }
 
-    @ParameterizedTest(name = "{index} - Авторизация пользователем {0} с некорректными данными")
+    @ParameterizedTest(name = "{index} - пользователь {0}")
     @MethodSource("incorrectLoginData")
-    @DisplayName("Попытка авторизации некорректными данными")
+    @DisplayName("Авторизация с некорректными данными")
+    @Description("Проверяется, что при авторизации с несуществующими или неполными данными возвращается сообщение об ошибке")
     public void authorizeWithIncorrectDataTest(UserData userInfo) {
         ValidatableResponse response = authClient.
                 authorizeUser(userInfo).spec(authClient.getResponseSpec());
 
-        Allure.step("Проверка корректности данных в ответе", () -> {
+        Allure.step("Проверка данных в ответе", () -> {
             assertAll("Приходит правильный статус-код и ожидаемое сообщение об ошибке",
                     () -> assertEquals(UNAUTHORIZED.getCode(), response.extract().statusCode()),
                     () -> assertEquals("email or password are incorrect",
@@ -82,7 +85,6 @@ public class UserAuthTest {
             );
         });
     }
-
 
 
     @AfterAll

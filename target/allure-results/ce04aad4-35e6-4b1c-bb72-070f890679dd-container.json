@@ -1,0 +1,1 @@
+{"uuid":"ce04aad4-35e6-4b1c-bb72-070f890679dd","name":"4 - Создание пользователя UserData(email=darline.christiansen@yahoo.com, password=test-test, name=) без одного или нескольких обязательных полей приводит к ошибке","children":["90e5debd-3bcc-4dd3-97b7-fee3dc9cb4f0"],"befores":[],"afters":[],"start":1685806305748,"stop":1685806306130}
