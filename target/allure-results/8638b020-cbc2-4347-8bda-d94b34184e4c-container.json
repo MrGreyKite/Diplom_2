@@ -1,0 +1,1 @@
+{"uuid":"8638b020-cbc2-4347-8bda-d94b34184e4c","name":"2 - Создание пользователя UserData(email=belkis.hammes@yahoo.com, password=, name=) без одного или нескольких обязательных полей приводит к ошибке","children":["0c89592a-fa2a-42f9-886f-ad8c243373da"],"befores":[],"afters":[],"start":1686244176674,"stop":1686244177066}

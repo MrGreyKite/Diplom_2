@@ -2,14 +2,10 @@ import com.github.javafaker.Faker;
 import data.UserData;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Description;
-import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
@@ -20,27 +16,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @DisplayName("Тесты на изменение данных пользователя")
-public class UserModificationTest {
-
+public class UserModificationTest extends BaseTest {
     Faker faker = new Faker();
-    String email = faker.internet().emailAddress();
-    String username = faker.name().username();
-    String password = faker.internet().password();
-
-    static AuthClient authClient = new AuthClient();
-    private UserData user;
-    String reserveToken;
     String refreshToken;
-
-    @BeforeEach
-    @Step("Создание тестового пользователя")
-    public void createTestUser() {
-        user = new UserData(email, password, username);
-        authClient.registerUser(user).spec(authClient.getResponseSpec());
-    }
 
     @Test
     @DisplayName("Изменение пароля пользователя")
@@ -121,7 +101,6 @@ public class UserModificationTest {
     @DisplayName("Отправка запроса на изменение данных неавторизованного пользователя")
     @Description("Проверяется, что недоступно изменение данных без токена авторизации")
     public void changeProfileFieldUnauthorized(UserData userInfo) {
-        reserveToken = RestClient.getAuthToken();
         authClient.setAuthToken("");
         ValidatableResponse response = authClient.modifyUserData(userInfo).spec(authClient.getResponseSpec());
 
@@ -134,22 +113,13 @@ public class UserModificationTest {
         });
     }
 
-    static Stream<Arguments> modifyUserData() {
+    static Stream<UserData> modifyUserData() {
         return Stream.of(
-                arguments(UserData.builder().email("new@new.com").build()),
-                arguments(UserData.builder().name("ТестовыйЮзер").build()),
-                arguments(UserData.builder().password("qsefthuko08642").build())
+                UserData.builder().email("new@new.com").build(),
+                UserData.builder().name("ТестовыйЮзер").build(),
+                UserData.builder().password("qsefthuko08642").build()
         );
     }
 
-
-    @AfterEach
-    @Step("Очистка данных тестового пользователя")
-    void tearDown() {
-        if (!RestClient.getAuthToken().isEmpty()) {
-            authClient.deleteUser().statusCode(202);
-            authClient.setAuthToken("");
-        }
-    }
 
 }

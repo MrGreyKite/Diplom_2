@@ -1,1 +1,0 @@
-{"uuid":"2fa4e51d-30cb-4dcd-ac69-aa5ed4d4f118","name":"2 - Создание пользователя UserData(email=anne.marvin@gmail.com, password=, name=) без одного или нескольких обязательных полей приводит к ошибке","children":["925e8a7c-6558-4dd8-93c8-9fb89557e03b"],"befores":[],"afters":[],"start":1685806304923,"stop":1685806305324}

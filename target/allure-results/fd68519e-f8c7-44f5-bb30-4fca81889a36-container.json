@@ -1,1 +1,0 @@
-{"uuid":"fd68519e-f8c7-44f5-bb30-4fca81889a36","name":"3 - Создание пользователя UserData(email=, password=testing, name=colin.harris) без одного или нескольких обязательных полей приводит к ошибке","children":["cf9fa81e-694a-4d80-aa42-cecec2a80c66"],"befores":[],"afters":[],"start":1685806305340,"stop":1685806305741}

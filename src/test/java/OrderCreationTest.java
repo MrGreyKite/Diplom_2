@@ -1,6 +1,4 @@
-import com.github.javafaker.Faker;
 import data.OrderData;
-import data.UserData;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
@@ -19,30 +17,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.hamcrest.CoreMatchers.is;
 
 @DisplayName("Тесты на создание заказа")
-public class OrderCreationTest {
-    static AuthClient authClient = new AuthClient();
-    static OrdersClient ordersClient = new OrdersClient();
-    static IngredientsClient ingredientsClient = new IngredientsClient();
-    static UserData user;
-    static List<String> ids;
+public class OrderCreationTest extends BaseTest {
+    OrdersClient ordersClient = new OrdersClient();
+    IngredientsClient ingredientsClient = new IngredientsClient();
+    List<String> ids;
     String hash1;
     String hash2;
-    String reserveToken;
-
-    @BeforeAll
-    @Step("Создание тестового пользователя")
-    public static void createTestUser() {
-        user = new UserData(new Faker().internet().emailAddress(),
-                new Faker().internet().password(),
-                new Faker().name().username());
-        authClient.registerUser(user).spec(authClient.getResponseSpec());
-
-        ids = ingredientsClient.getAllIngredients().extract().jsonPath().getList("data._id");
-    }
 
     @BeforeEach
     @Step("Выбор хэш-кодов ингридиентов из списка доступных")
     void generateHashes() {
+        ids = ingredientsClient.getAllIngredients().extract().jsonPath().getList("data._id");
         hash1 = ids.get(new Random().nextInt(ids.size()));
         do { hash2 = ids.get(new Random().nextInt(ids.size())); } while (hash2.equals(hash1));
     }
@@ -74,7 +59,6 @@ public class OrderCreationTest {
     @Description("Проверяется, что только авторизованные пользователи могут делать заказы")
     public void createOrderWithIngredientsWhenUnauthorizedTest() {
         //в ТЗ указано "Только авторизованные пользователи могут делать заказы." (раздел "Авторизация и регистрация")
-        reserveToken = RestClient.getAuthToken();
         ordersClient.setAuthToken("");
 
         OrderData in = OrderData.builder().ingredients(new Object[]{hash1, hash2}).build();
@@ -110,7 +94,6 @@ public class OrderCreationTest {
     @DisplayName("Создание заказа без ингредиентов неавторизованным пользователем")
     @Description("Проверяется, что для неавторизованного пользователя в первую очередь выводится ошибка авторизации")
     public void createOrderWithoutIngredientsWhenUnauthorizedTest(){
-        reserveToken = RestClient.getAuthToken();
         ordersClient.setAuthToken("");
 
         OrderData in = OrderData.builder().ingredients(new Object[]{}).build();
@@ -139,21 +122,4 @@ public class OrderCreationTest {
         });
     }
 
-
-    @AfterEach
-    @Step("Восстановление токена авторизации, если он был стерт")
-    void restoreTokenIfNeeded() {
-        if(RestClient.getAuthToken().isEmpty()) {
-            authClient.setAuthToken(reserveToken);
-        }
-    }
-
-    @AfterAll
-    @Step("Очистка данных тестового пользователя")
-    static void tearDown() {
-        if (!RestClient.getAuthToken().isEmpty()) {
-            authClient.deleteUser().statusCode(202);
-            authClient.setAuthToken("");
-        }
-    }
 }

@@ -2,15 +2,11 @@ import com.github.javafaker.Faker;
 import data.UserData;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Description;
-import io.qameta.allure.Step;
 import io.restassured.response.ValidatableResponse;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
 
 import java.util.stream.Stream;
 
@@ -20,18 +16,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 @DisplayName("Тесты на регистрацию пользователя")
-public class UserRegistrationTest {
-
+public class UserRegistrationTest extends BaseTest {
     Faker faker = new Faker();
     String email = faker.internet().emailAddress();
     String username = faker.name().username();
     String password = faker.internet().password();
-
-    static AuthClient authClient = new AuthClient();
-    private UserData user;
 
     @Test
     @DisplayName("Регистрация нового пользователя")
@@ -90,13 +81,13 @@ public class UserRegistrationTest {
         });
     }
 
-    static Stream<Arguments> incorrectRegisterData() {
+    static Stream<UserData> incorrectRegisterData() {
         return Stream.of(
-                arguments(new UserData("", "","")),
-                arguments(new UserData(new Faker().internet().emailAddress(), "","")),
-                arguments(new UserData("", "testing", new Faker().name().username())),
-                arguments(new UserData(new Faker().internet().emailAddress(), "test-test","")),
-                arguments(new UserData("", "",new Faker().internet().password()))
+                new UserData("", "",""),
+                new UserData(new Faker().internet().emailAddress(), "",""),
+                new UserData("", "testing", new Faker().name().username()),
+                new UserData(new Faker().internet().emailAddress(), "test-test",""),
+                new UserData("", "",new Faker().internet().password())
         );
     }
 
@@ -113,15 +104,6 @@ public class UserRegistrationTest {
                             response.extract().path("message"))
             );
         });
-    }
-
-    @AfterEach
-    @Step("Очистка данных тестового пользователя")
-    void tearDown() {
-        if (!RestClient.getAuthToken().isEmpty()) {
-            authClient.deleteUser().statusCode(202);
-            authClient.setAuthToken("");
-        }
     }
 
 }

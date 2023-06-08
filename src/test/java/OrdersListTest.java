@@ -1,6 +1,4 @@
-import com.github.javafaker.Faker;
 import data.OrderData;
-import data.UserData;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
@@ -20,24 +18,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 @DisplayName("Тесты на список заказов пользователя")
-public class OrdersListTest {
-    static AuthClient authClient = new AuthClient();
-    static OrdersClient ordersClient = new OrdersClient();
-    static IngredientsClient ingredientsClient = new IngredientsClient();
-    static UserData user;
-    static List<String> ids;
-    static String hash1;
-    static String hash2;
-    static String hash3;
-    String reserveToken;
+public class OrdersListTest extends BaseTest {
+    OrdersClient ordersClient = new OrdersClient();
+    IngredientsClient ingredientsClient = new IngredientsClient();
+    List<String> ids;
+    String hash1;
+    String hash2;
+    String hash3;
 
-    @BeforeAll
+    @BeforeEach
     @Step("Создание тестового пользователя и выбор ингредиентов")
-    public static void createTestUser() {
-        user = new UserData(new Faker().internet().emailAddress(),
-                new Faker().internet().password(),
-                new Faker().name().username());
-        authClient.registerUser(user).spec(authClient.getResponseSpec());
+    public void createTestUser() {
+        super.createTestUser();
 
         ids = ingredientsClient.getAllIngredients().extract().jsonPath().getList("data._id");
         hash1 = ids.get(new Random().nextInt(ids.size()));
@@ -81,14 +73,12 @@ public class OrdersListTest {
                     () -> assertEquals(numbersOfOrdersInList.size(), totalOrders)
             );
         });
-
     }
 
     @Test
     @DisplayName("Запрос списка заказов неавторизованным пользователем")
     @Description("Проверяется, что только авторизованный пользователь может получить список своих заказов")
     public void getOrdersUnauthorized() {
-        reserveToken = RestClient.getAuthToken();
         ordersClient.setAuthToken("");
 
         OrderData in1 = OrderData.builder().ingredients(new Object[]{hash1}).build();
@@ -107,20 +97,5 @@ public class OrdersListTest {
         });
     }
 
-    @AfterEach
-    void restoreTokenIfNeeded() {
-        if(RestClient.getAuthToken().isEmpty()) {
-            authClient.setAuthToken(reserveToken);
-        }
-    }
-
-    @AfterAll
-    @Step("Очистка данных тестового пользователя")
-    static void tearDown() {
-        if (!RestClient.getAuthToken().isEmpty()) {
-            authClient.deleteUser().statusCode(202);
-            authClient.setAuthToken("");
-        }
-    }
 
 }
