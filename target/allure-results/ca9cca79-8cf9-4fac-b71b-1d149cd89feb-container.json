@@ -1,0 +1,1 @@
+{"uuid":"ca9cca79-8cf9-4fac-b71b-1d149cd89feb","name":"3 - Создание пользователя UserData(email=, password=testing, name=lore.lakin) без одного или нескольких обязательных полей приводит к ошибке","children":["0a72a1b8-6cfc-43aa-8641-0103136fb8e5"],"befores":[],"afters":[],"start":1686655683945,"stop":1686655684357}

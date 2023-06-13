@@ -26,6 +26,8 @@ public class UserAuthTest extends BaseTest {
                 authorizeUser(UserData.builder().email(user.getEmail()).password(user.getPassword()).build()).
                 spec(authClient.getResponseSpec());
 
+        authToken = response.extract().body().path("accessToken");
+
         Allure.step("Проверка данных в ответе", () -> {
             assertAll("Приходит правильный статус-код и подтверждается авторизация нужного пользователя",
                     () -> assertEquals(OK.getCode(), response.extract().statusCode()),
@@ -53,6 +55,8 @@ public class UserAuthTest extends BaseTest {
     public void authorizeWithIncorrectDataTest(UserData userInfo) {
         ValidatableResponse response = authClient.
                 authorizeUser(userInfo).spec(authClient.getResponseSpec());
+
+        authToken = response.extract().body().path("accessToken");
 
         Allure.step("Проверка данных в ответе", () -> {
             assertAll("Приходит правильный статус-код и ожидаемое сообщение об ошибке",

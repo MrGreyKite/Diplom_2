@@ -26,10 +26,13 @@ public class UserModificationTest extends BaseTest {
     @DisplayName("Изменение пароля пользователя")
     @Description("Проверка, что можно успешно изменить пароль и потом без ошибки авторизоваться с новым паролем")
     public void changePasswordTest() {
-        refreshToken = authClient.authorizeUser(user).extract().path("refreshToken");
+        ValidatableResponse auth = authClient.authorizeUser(user);
+        refreshToken = auth.extract().path("refreshToken");
+
         String newPassword = faker.internet().password();
 
-        ValidatableResponse responseMod = authClient.modifyUserData(UserData.builder().password(newPassword).build());
+        ValidatableResponse responseMod = authClient.modifyUserData(UserData.builder().password(newPassword).build(),
+                authToken);
 
         Allure.step("Проверка успешности авторизации", () -> {
             assertAll("Приходит правильный статус-код и результат",
@@ -42,6 +45,7 @@ public class UserModificationTest extends BaseTest {
 
         ValidatableResponse response = authClient.
                 authorizeUser(UserData.builder().email(user.getEmail()).password(newPassword).build());
+        authToken = response.extract().body().path("accessToken");
         UserData userData = response.extract().body().jsonPath().getObject("user", UserData.class);
 
         Allure.step("Проверка успешной авторизации с новым паролем", () -> {
@@ -59,10 +63,10 @@ public class UserModificationTest extends BaseTest {
     @Description("Проверка, что можно успешно изменить имя пользователя и изменения сохраняются")
     public void changeUsernameTest() {
         String newName = "Super New Name";
-        authClient.modifyUserData(UserData.builder().name(newName).build()).
+        authClient.modifyUserData(UserData.builder().name(newName).build(), authToken).
                 spec(authClient.getResponseSpec());
 
-        ValidatableResponse response = authClient.getUserData().spec(authClient.getResponseSpec());
+        ValidatableResponse response = authClient.getUserData(authToken).spec(authClient.getResponseSpec());
         UserData userData = response.extract().body().jsonPath().getObject("user", UserData.class);
 
         Allure.step("Проверка корректности измененных данных", () -> {
@@ -80,10 +84,10 @@ public class UserModificationTest extends BaseTest {
     @Description("Проверка, что можно успешно изменить email пользователя и изменения сохраняются")
     public void changeEmailTest() {
         String newEmail = new Faker().internet().emailAddress();
-        authClient.modifyUserData(UserData.builder().email(newEmail).build()).
+        authClient.modifyUserData(UserData.builder().email(newEmail).build(), authToken).
                 spec(authClient.getResponseSpec());
 
-        ValidatableResponse response = authClient.getUserData().spec(authClient.getResponseSpec());
+        ValidatableResponse response = authClient.getUserData(authToken).spec(authClient.getResponseSpec());
         UserData userData = response.extract().body().jsonPath().getObject("user", UserData.class);
 
         Allure.step("Проверка корректности измененных данных", () -> {
@@ -101,7 +105,6 @@ public class UserModificationTest extends BaseTest {
     @DisplayName("Отправка запроса на изменение данных неавторизованного пользователя")
     @Description("Проверяется, что недоступно изменение данных без токена авторизации")
     public void changeProfileFieldUnauthorized(UserData userInfo) {
-        authClient.setAuthToken("");
         ValidatableResponse response = authClient.modifyUserData(userInfo).spec(authClient.getResponseSpec());
 
         Allure.step("Проверка корректности данных в ответе", () -> {

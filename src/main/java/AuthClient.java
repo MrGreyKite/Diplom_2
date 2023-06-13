@@ -14,56 +14,56 @@ public class AuthClient extends RestClient {
 
     @Step("Отправка запроса на регистрацию пользователя")
     public ValidatableResponse registerUser(UserData user) {
-        ValidatableResponse response = given().
+        return given().
                 spec(getBaseSpec()).
                 body(user).
                 when().
                 post(REGISTER_PATH).
                 then();
-
-        if (response.extract().body().path("accessToken") != null) {
-            setAuthToken(response.extract().body().path("accessToken"));
-        }
-
-        return response;
     }
 
     @Step("Отправка запроса на авторизацию пользователя")
     public ValidatableResponse authorizeUser(UserData user) {
-        ValidatableResponse response = given().
+        return given().
                 spec(getBaseSpec()).
                 body(user).
                 when().
                 post(LOGIN_PATH).
                 then();
-
-        if (response.extract().body().path("accessToken") != null) {
-            setAuthToken(response.extract().body().path("accessToken"));
-        }
-
-        return response;
-
     }
 
     @Step("Отправка запроса на удаление пользователя")
-    public ValidatableResponse deleteUser() {
+    public ValidatableResponse deleteUser(String authToken) {
         return given().
                 spec(getBaseSpec()).
+                header("authorization", authToken).
                 when().
                 delete(USER_PATH).
                 then();
     }
 
     @Step("Отправка запроса на получение данных пользователя")
-    public ValidatableResponse getUserData() {
+    public ValidatableResponse getUserData(String authToken) {
         return given().
                 spec(getBaseSpec()).
+                header("authorization", authToken).
                 when().
                 get(USER_PATH).
                 then();
     }
 
-    @Step("Отправка запроса на изменение данных пользователя")
+    @Step("Отправка запроса на изменение данных пользователя с авторизацией")
+    public ValidatableResponse modifyUserData(UserData userInfo, String authToken) {
+        return given().
+                spec(getBaseSpec()).
+                header("authorization", authToken).
+                body(userInfo).
+                when().
+                patch(USER_PATH).
+                then();
+    }
+
+    @Step("Отправка запроса на изменение данных пользователя без авторизации")
     public ValidatableResponse modifyUserData(UserData userInfo) {
         return given().
                 spec(getBaseSpec()).

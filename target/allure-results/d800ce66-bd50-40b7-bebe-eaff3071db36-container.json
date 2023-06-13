@@ -1,1 +1,0 @@
-{"uuid":"d800ce66-bd50-40b7-bebe-eaff3071db36","name":"3 - Создание пользователя UserData(email=, password=testing, name=brice.ritchie) без одного или нескольких обязательных полей приводит к ошибке","children":["5f4779f4-56e4-4ff3-9355-343a665da75b"],"befores":[],"afters":[],"start":1686244177076,"stop":1686244177478}

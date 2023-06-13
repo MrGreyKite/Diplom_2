@@ -39,7 +39,8 @@ public class OrderCreationTest extends BaseTest {
         OrderData in = OrderData.builder().ingredients(new Object[]{hash1, hash2}).build();
         int numberOfIngredients = in.getIngredients().length;
 
-        ValidatableResponse response = ordersClient.makeOrder(in).spec(ordersClient.getResponseSpec());
+        ValidatableResponse response = ordersClient.makeOrder(in, authToken).spec(ordersClient.getResponseSpec());
+
         OrderData order = response.extract().body().jsonPath().getObject("order", OrderData.class);
 
         Allure.step("Проверка корректности создания заказа с ингридиентами", () -> {
@@ -59,14 +60,13 @@ public class OrderCreationTest extends BaseTest {
     @Description("Проверяется, что только авторизованные пользователи могут делать заказы")
     public void createOrderWithIngredientsWhenUnauthorizedTest() {
         //в ТЗ указано "Только авторизованные пользователи могут делать заказы." (раздел "Авторизация и регистрация")
-        ordersClient.setAuthToken("");
 
         OrderData in = OrderData.builder().ingredients(new Object[]{hash1, hash2}).build();
 
         ValidatableResponse response = ordersClient.makeOrder(in).spec(ordersClient.getResponseSpec());
 
         Allure.step("Проверка корректности данных в ответе", () -> {
-            assertAll("Приходит код ошибки 403 и сообщение об отсутствии авторизации",
+            assertAll("Приходит код ошибки 401 и сообщение об отсутствии авторизации",
                     () -> assertEquals(UNAUTHORIZED.getCode(), response.extract().statusCode()),
                     () -> assertThat(response.extract().path("success"), is(false)),
                     () -> assertThat(response.extract().path("message"), is("You should be authorised"))
@@ -79,7 +79,7 @@ public class OrderCreationTest extends BaseTest {
     @Description("Проверяется невозможность создания заказа без ингредиентов")
     public void createOrderWithoutIngredientsWhenAuthorizedTest() {
         OrderData in = OrderData.builder().ingredients(new Object[]{}).build();
-        ValidatableResponse response = ordersClient.makeOrder(in).spec(ordersClient.getResponseSpec());
+        ValidatableResponse response = ordersClient.makeOrder(in, authToken).spec(ordersClient.getResponseSpec());
 
         Allure.step("Проверка кода и сообщения об ошибке", () -> {
             assertAll("Приходит статус-код 400 и сообщение об отсутствии ингредиентов",
@@ -94,8 +94,6 @@ public class OrderCreationTest extends BaseTest {
     @DisplayName("Создание заказа без ингредиентов неавторизованным пользователем")
     @Description("Проверяется, что для неавторизованного пользователя в первую очередь выводится ошибка авторизации")
     public void createOrderWithoutIngredientsWhenUnauthorizedTest(){
-        ordersClient.setAuthToken("");
-
         OrderData in = OrderData.builder().ingredients(new Object[]{}).build();
         ValidatableResponse response = ordersClient.makeOrder(in).spec(ordersClient.getResponseSpec());
 
@@ -115,7 +113,7 @@ public class OrderCreationTest extends BaseTest {
         String invalidHash = UUID.randomUUID().toString().replace("-", "");
         OrderData in = OrderData.builder().ingredients(new Object[]{invalidHash, hash2}).build();
 
-        ValidatableResponse response = ordersClient.makeOrder(in);
+        ValidatableResponse response = ordersClient.makeOrder(in, authToken);
 
         Allure.step("Проверка кода и сообщения об ошибке", () -> {
             assertEquals(INTERNAL_SERVER_ERROR.getCode(), response.extract().statusCode());

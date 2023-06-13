@@ -9,22 +9,11 @@ public class RestClient {
 
     private static final String BASE_URI = "https://stellarburgers.nomoreparties.site";
 
-    private static String authToken = "";
-
-    public void setAuthToken(String authToken) {
-        RestClient.authToken = authToken;
-    }
-
-    public static String getAuthToken() {
-        return authToken;
-    }
-
     protected RequestSpecification getBaseSpec() {
         return new RequestSpecBuilder().
                 setBaseUri(BASE_URI).
                 setBasePath("/api").
                 setContentType(ContentType.JSON).
-                addHeader("authorization", getAuthToken()).
                 log(LogDetail.ALL).
                 build();
     }

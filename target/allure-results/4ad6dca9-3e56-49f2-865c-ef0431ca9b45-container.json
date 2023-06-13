@@ -1,1 +1,0 @@
-{"uuid":"4ad6dca9-3e56-49f2-865c-ef0431ca9b45","name":"4 - Создание пользователя UserData(email=keri.hirthe@gmail.com, password=test-test, name=) без одного или нескольких обязательных полей приводит к ошибке","children":["6e92e239-7bb8-400e-9f01-9843e0faa050"],"befores":[],"afters":[],"start":1686244177496,"stop":1686244177881}

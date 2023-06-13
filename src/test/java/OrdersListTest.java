@@ -46,8 +46,8 @@ public class OrdersListTest extends BaseTest {
     public void getOrdersByUserTest() {
         OrderData in1 = OrderData.builder().ingredients(new Object[]{hash1, hash2, hash3}).build();
         OrderData in2 = OrderData.builder().ingredients(new Object[]{hash1, hash2}).build();
-        ValidatableResponse firstOrder = ordersClient.makeOrder(in1).spec(ordersClient.getResponseSpec());
-        ValidatableResponse secondOrder = ordersClient.makeOrder(in2).spec(ordersClient.getResponseSpec());
+        ValidatableResponse firstOrder = ordersClient.makeOrder(in1, authToken).spec(ordersClient.getResponseSpec());
+        ValidatableResponse secondOrder = ordersClient.makeOrder(in2, authToken).spec(ordersClient.getResponseSpec());
 
         List<String> idsOfIndividualOrders = new ArrayList<>();
         idsOfIndividualOrders.add(firstOrder.extract().path("order._id"));
@@ -57,7 +57,7 @@ public class OrdersListTest extends BaseTest {
         numbersOfIndividualOrders.add(firstOrder.extract().path("order.number"));
         numbersOfIndividualOrders.add(secondOrder.extract().path("order.number"));
 
-        ValidatableResponse response = ordersClient.getOrdersList().spec(ordersClient.getResponseSpec());
+        ValidatableResponse response = ordersClient.getOrdersList(authToken).spec(ordersClient.getResponseSpec());
 
         int totalOrders = response.extract().body().path("total");
         List<OrderData> orders = response.extract().body().jsonPath().getList("orders", OrderData.class);
@@ -79,8 +79,6 @@ public class OrdersListTest extends BaseTest {
     @DisplayName("Запрос списка заказов неавторизованным пользователем")
     @Description("Проверяется, что только авторизованный пользователь может получить список своих заказов")
     public void getOrdersUnauthorized() {
-        ordersClient.setAuthToken("");
-
         OrderData in1 = OrderData.builder().ingredients(new Object[]{hash1}).build();
         OrderData in2 = OrderData.builder().ingredients(new Object[]{hash2}).build();
         ordersClient.makeOrder(in1).spec(ordersClient.getResponseSpec());

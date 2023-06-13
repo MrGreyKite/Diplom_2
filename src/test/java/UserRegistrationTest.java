@@ -31,6 +31,8 @@ public class UserRegistrationTest extends BaseTest {
         user = new UserData(email, password, username);
         ValidatableResponse response = authClient.registerUser(user).spec(authClient.getResponseSpec());
 
+        authToken = response.extract().body().path("accessToken");
+
         Allure.step("Проверка корректности данных в ответе", () -> {
             assertAll("Приходит правильный статус-код и подтверждается регистрация пользователя",
                     () -> assertEquals(OK.getCode(), response.extract().statusCode()),
@@ -49,7 +51,9 @@ public class UserRegistrationTest extends BaseTest {
         UserData user2 = new UserData(faker.internet().emailAddress(), password, username);
 
         authClient.registerUser(user).spec(authClient.getResponseSpec());
+
         ValidatableResponse response = authClient.registerUser(user2).spec(authClient.getResponseSpec());
+        authToken = response.extract().body().path("accessToken");
 
         Allure.step("Проверка корректности данных в ответе", () -> {
             assertAll("Приходит правильный статус-код и текст об ошибке регистрации",
@@ -69,7 +73,9 @@ public class UserRegistrationTest extends BaseTest {
         UserData user2 = new UserData(email, faker.name().username(), password);
 
         authClient.registerUser(user).spec(authClient.getResponseSpec());
+
         ValidatableResponse response = authClient.registerUser(user2).spec(authClient.getResponseSpec());
+        authToken = response.extract().body().path("accessToken");
 
         Allure.step("Проверка корректности данных в ответе", () -> {
             assertAll("Приходит правильный статус-код и текст об ошибке регистрации",
@@ -96,6 +102,7 @@ public class UserRegistrationTest extends BaseTest {
     @DisplayName("Попытка создания пользователя с некорректными данными - ")
     public void userWithoutRequiredFieldsTest(UserData user) {
         ValidatableResponse response = authClient.registerUser(user).spec(authClient.getResponseSpec());
+        authToken = response.extract().body().path("accessToken");
 
         Allure.step("Проверка корректности данных в ответе", () -> {
             assertAll("Приходит правильный статус-код и ожидаемое сообщение об ошибке",
