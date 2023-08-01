@@ -1,0 +1,1 @@
+{"uuid":"9873ac83-dd77-4029-9581-40b89e0a45e5","name":"4 - Создание пользователя UserData(email=myrtie.dickens@yahoo.com, password=test-test, name=) без одного или нескольких обязательных полей приводит к ошибке","children":["7c5502d7-7a67-4b0a-8ee5-d7b10af88009"],"befores":[],"afters":[],"start":1686655684384,"stop":1686655684841}

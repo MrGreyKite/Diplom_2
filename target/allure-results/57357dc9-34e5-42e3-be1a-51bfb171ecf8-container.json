@@ -1,0 +1,1 @@
+{"uuid":"57357dc9-34e5-42e3-be1a-51bfb171ecf8","name":"2 - Создание пользователя UserData(email=bryan.dietrich@gmail.com, password=, name=) без одного или нескольких обязательных полей приводит к ошибке","children":["a96d3160-f359-4af1-a641-52dad38a9d08"],"befores":[],"afters":[],"start":1686655683483,"stop":1686655683924}
